@@ -39,6 +39,20 @@ st.title("Vanna AI")
 def set_question(question):
     st.session_state["my_question"] = question
 
+def display_input_box():
+    col1, col2 = st.columns([4, 1])
+    with col1:
+        user_input = st.chat_input("Ask me a question about your data", key="user_question_input")
+        if user_input:
+            st.session_state["my_question"] = user_input
+    with col2:
+        if st.button("Clear and Start New Session"):
+            st.session_state.clear()
+            st.experimental_rerun()
+
+# Ensure the input box is displayed initially
+display_input_box()
+
 assistant_message_suggested = st.chat_message(
     "assistant", avatar=avatar_url
 )
@@ -53,6 +67,8 @@ if assistant_message_suggested.button("Click to show suggested questions"):
                 on_click=set_question,
                 args=(question,),
             )
+        # Ensure the input box is displayed after generating suggestions
+        display_input_box()
     else:
         st.error("No suggested questions available")
 
@@ -60,18 +76,6 @@ if "my_question" not in st.session_state:
     st.session_state["my_question"] = None
 
 my_question = st.session_state["my_question"]
-
-col1, col2 = st.columns([4, 1])
-with col1:
-    if my_question is None:
-        my_question = st.chat_input("Ask me a question about your data", key="user_question_input")
-        if my_question:
-            st.session_state["my_question"] = my_question
-
-with col2:
-    if st.button("Clear and Start New Session"):
-        st.session_state.clear()
-        st.experimental_rerun()
 
 if my_question:
     user_message = st.chat_message("user")
@@ -161,15 +165,15 @@ if my_question:
                     for question in followup_questions[:5]:
                         assistant_message_followup.button(question, on_click=set_question, args=(question,))
 
+        # Ensure the input box is displayed after generating follow-up questions
+        display_input_box()
     else:
         assistant_message_error = st.chat_message(
             "assistant", avatar=avatar_url
         )
         assistant_message_error.error("I wasn't able to generate SQL for that question")
-
-    # Clear the input field for the next question
-    st.session_state["my_question"] = None
-
-# Ensure the input field is always available
-if st.session_state["my_question"] is None:
-    st.chat_input("Ask me a question about your data", key="new_user_question_input")
+        # Ensure the input box is displayed even if SQL generation fails
+        display_input_box()
+else:
+    # Ensure the input box is displayed if there is no current question
+    display_input_box()
