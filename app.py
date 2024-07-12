@@ -1,3 +1,4 @@
+import time
 import streamlit as st
 from vanna_calls import (
     generate_questions_cached,
@@ -22,7 +23,7 @@ if api_key_input:
     st.session_state["api_key"] = api_key_input
     st.success("API Key saved successfully!")
 else:
-    st.warning("Please enter your Vanna API Key.")
+    st.warning("Please enter your Vanna API Key in the place holder at the sidebar to start off.")
 
 st.sidebar.title("Output Settings")
 st.sidebar.checkbox("Show SQL", value=True, key="show_sql")
