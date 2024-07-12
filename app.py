@@ -87,11 +87,7 @@ if st.session_state["my_question"]:
                     "assistant",
                     avatar=avatar_url,
                 )
-                if len(df) > 10:
-                    assistant_message_table.text("First 10 rows of data")
-                    assistant_message_table.dataframe(df.head(10))
-                else:
-                    assistant_message_table.dataframe(df)
+                assistant_message_table.dataframe(df)  # Display all records
 
             if should_generate_chart_cached(question=my_question, sql=sql, df=df):
 
