@@ -40,9 +40,10 @@ def set_question(question):
     st.session_state["my_question"] = question
 
 def display_input_box():
+    unique_key = f"user_question_input_{time.time()}"
     col1, col2 = st.columns([4, 1])
     with col1:
-        user_input = st.chat_input("Ask me a question about your data", key="user_question_input")
+        user_input = st.chat_input("Ask me a question about your data", key=unique_key)
         if user_input:
             st.session_state["my_question"] = user_input
     with col2:
