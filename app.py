@@ -41,9 +41,8 @@ def set_question(question):
 
 def display_input_box():
     col1, col2 = st.columns([4, 1])
-    unique_input_key = f"user_question_input_{int(time.time() * 1000)}"
     with col1:
-        user_input = st.chat_input("Ask me a question about your data", key=unique_input_key)
+        user_input = st.chat_input("Ask me a question about your data", key="user_question_input")
         if user_input:
             st.session_state["my_question"] = user_input
     with col2:
