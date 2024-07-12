@@ -1,18 +1,36 @@
 import streamlit as st
-
 from vanna.remote import VannaDefault
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
 
 @st.cache_resource(ttl=3600)
 def setup_vanna():
-    vn = VannaDefault(api_key=st.secrets.get("VANNA_API_KEY"), model='chinook')
+    logging.debug("Retrieving API keys from secrets")
+    api_keys = st.secrets.get("api_keys")
+    logging.debug(f"API Keys: {api_keys}")
+    if api_keys is None:
+        raise ValueError("API keys not found in secrets.toml")
+
+    api_key = api_keys["vanna_key"]
+    vn = VannaDefault(api_key=api_key, model='chinook')
+    if vn is None:
+        raise Exception("Failed to initialize VannaDefault")
+
     vn.connect_to_sqlite("https://vanna.ai/Chinook.sqlite")
     return vn
 
 @st.cache_data(show_spinner="Generating sample questions ...")
 def generate_questions_cached():
     vn = setup_vanna()
-    return vn.generate_questions()
-
+    if vn is None:
+        st.error("Failed to set up Vanna")
+        return []
+    questions = vn.generate_questions()
+    if questions is None:
+        st.error("Failed to generate questions")
+        return []
+    return questions
 
 @st.cache_data(show_spinner="Generating SQL query ...")
 def generate_sql_cached(question: str):
@@ -40,12 +58,10 @@ def generate_plotly_code_cached(question, sql, df):
     code = vn.generate_plotly_code(question=question, sql=sql, df=df)
     return code
 
-
 @st.cache_data(show_spinner="Running Plotly code ...")
 def generate_plot_cached(code, df):
     vn = setup_vanna()
     return vn.get_plotly_figure(plotly_code=code, df=df)
-
 
 @st.cache_data(show_spinner="Generating followup questions ...")
 def generate_followup_cached(question, sql, df):
