@@ -13,8 +13,13 @@ from vanna_calls import (
     generate_summary_cached
 )
 
-# Suppress specific warning
-warnings.filterwarnings("ignore", message="DuplicateWidgetID")
+# Function to suppress warnings
+def suppress_duplicate_widget_warning(func):
+    def wrapper(*args, **kwargs):
+        with warnings.catch_warnings():
+            warnings.filterwarnings("ignore", message="DuplicateWidgetID")
+            return func(*args, **kwargs)
+    return wrapper
 
 avatar_url = "https://vanna.ai/img/vanna.svg"
 
@@ -43,6 +48,7 @@ st.title("Vanna AI")
 def set_question(question):
     st.session_state["my_question"] = question
 
+@suppress_duplicate_widget_warning
 def display_input_box():
     col1, col2 = st.columns([4, 1])
     with col1:
