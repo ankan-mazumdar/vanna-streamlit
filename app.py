@@ -1,6 +1,5 @@
 import time
 import streamlit as st
-import warnings
 from vanna_calls import (
     generate_questions_cached,
     generate_sql_cached,
@@ -12,14 +11,6 @@ from vanna_calls import (
     is_sql_valid_cached,
     generate_summary_cached
 )
-
-# Function to suppress warnings
-def suppress_duplicate_widget_warning(func):
-    def wrapper(*args, **kwargs):
-        with warnings.catch_warnings():
-            warnings.filterwarnings("ignore", message="DuplicateWidgetID")
-            return func(*args, **kwargs)
-    return wrapper
 
 avatar_url = "https://vanna.ai/img/vanna.svg"
 
@@ -48,23 +39,19 @@ st.title("Vanna AI")
 def set_question(question):
     st.session_state["my_question"] = question
 
-@suppress_duplicate_widget_warning
-def display_input_box():
-    col1, col2 = st.columns([4, 1])
-    with col1:
-        user_input = st.chat_input("Ask me a question about your data", key="user_question_input")
-        if user_input:
-            st.session_state["my_question"] = user_input
-    with col2:
-        if st.button("Clear and Start New Session", key="clear_button"):
-            st.session_state.clear()
-            st.experimental_rerun()
+# Ensure the input box is displayed initially
+col1, col2 = st.columns([4, 1])
+with col1:
+    user_input = st.chat_input("Ask me a question about your data", key="user_question_input")
+    if user_input:
+        st.session_state["my_question"] = user_input
+with col2:
+    if st.button("Clear and Start New Session", key="clear_button"):
+        st.session_state.clear()
+        st.experimental_rerun()
 
 if "my_question" not in st.session_state:
     st.session_state["my_question"] = None
-
-# Ensure the input box is displayed initially
-display_input_box()
 
 if st.session_state["my_question"]:
     my_question = st.session_state["my_question"]
@@ -161,15 +148,11 @@ if st.session_state["my_question"]:
                             key=f"followup_question_button_{i}"
                         )
 
-        # Ensure the input box is displayed after generating follow-up questions
-        display_input_box()
     else:
         assistant_message_error = st.chat_message(
             "assistant", avatar=avatar_url
         )
         assistant_message_error.error("I wasn't able to generate SQL for that question")
-        # Ensure the input box is displayed even if SQL generation fails
-        display_input_box()
 else:
     assistant_message_suggested = st.chat_message(
         "assistant", avatar=avatar_url
@@ -186,10 +169,5 @@ else:
                     args=(question,),
                     key=f"suggested_question_button_{i}"
                 )
-            # Ensure the input box is displayed after generating suggestions
-            display_input_box()
         else:
             st.error("No suggested questions available")
-    else:
-        # Ensure the input box is displayed if there is no current question
-        display_input_box()
