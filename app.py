@@ -40,47 +40,25 @@ def set_question(question):
     st.session_state["my_question"] = question
 
 def display_input_box():
-    unique_input_key = f"user_question_input_{time.time()}"
-    unique_button_key = f"clear_button_{time.time()}"
     col1, col2 = st.columns([4, 1])
     with col1:
-        user_input = st.chat_input("Ask me a question about your data", key=unique_input_key)
+        user_input = st.chat_input("Ask me a question about your data", key="user_question_input")
         if user_input:
             st.session_state["my_question"] = user_input
     with col2:
-        if st.button("Clear and Start New Session", key=unique_button_key):
+        if st.button("Clear and Start New Session", key="clear_button"):
             st.session_state.clear()
             st.experimental_rerun()
-
-# Ensure the input box is displayed initially
-display_input_box()
-
-assistant_message_suggested = st.chat_message(
-    "assistant", avatar=avatar_url
-)
-if assistant_message_suggested.button("Click to show suggested questions"):
-    st.session_state["my_question"] = None
-    questions = generate_questions_cached()
-    if questions:
-        for i, question in enumerate(questions):
-            time.sleep(0.05)
-            button = st.button(
-                question,
-                on_click=set_question,
-                args=(question,),
-                key=f"suggested_question_button_{i}"
-            )
-        # Ensure the input box is displayed after generating suggestions
-        display_input_box()
-    else:
-        st.error("No suggested questions available")
 
 if "my_question" not in st.session_state:
     st.session_state["my_question"] = None
 
-my_question = st.session_state["my_question"]
+# Ensure the input box is displayed initially
+display_input_box()
 
-if my_question:
+if st.session_state["my_question"]:
+    my_question = st.session_state["my_question"]
+
     user_message = st.chat_message("user")
     user_message.write(f"{my_question}")
 
@@ -183,5 +161,25 @@ if my_question:
         # Ensure the input box is displayed even if SQL generation fails
         display_input_box()
 else:
-    # Ensure the input box is displayed if there is no current question
-    display_input_box()
+    assistant_message_suggested = st.chat_message(
+        "assistant", avatar=avatar_url
+    )
+    if assistant_message_suggested.button("Click to show suggested questions"):
+        st.session_state["my_question"] = None
+        questions = generate_questions_cached()
+        if questions:
+            for i, question in enumerate(questions):
+                time.sleep(0.05)
+                button = st.button(
+                    question,
+                    on_click=set_question,
+                    args=(question,),
+                    key=f"suggested_question_button_{i}"
+                )
+            # Ensure the input box is displayed after generating suggestions
+            display_input_box()
+        else:
+            st.error("No suggested questions available")
+    else:
+        # Ensure the input box is displayed if there is no current question
+        display_input_box()
