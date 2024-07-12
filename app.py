@@ -64,7 +64,7 @@ my_question = st.session_state["my_question"]
 col1, col2 = st.columns([4, 1])
 with col1:
     if my_question is None:
-        my_question = st.chat_input("Ask me a question about your data")
+        my_question = st.chat_input("Ask me a question about your data", key="user_question_input")
         if my_question:
             st.session_state["my_question"] = my_question
 
@@ -169,3 +169,7 @@ if my_question:
 
     # Clear the input field for the next question
     st.session_state["my_question"] = None
+
+# Ensure the input field is always available
+if st.session_state["my_question"] is None:
+    st.chat_input("Ask me a question about your data", key="new_user_question_input")
