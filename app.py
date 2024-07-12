@@ -40,14 +40,15 @@ def set_question(question):
     st.session_state["my_question"] = question
 
 def display_input_box():
-    unique_key = f"user_question_input_{time.time()}"
+    unique_input_key = f"user_question_input_{time.time()}"
+    unique_button_key = f"clear_button_{time.time()}"
     col1, col2 = st.columns([4, 1])
     with col1:
-        user_input = st.chat_input("Ask me a question about your data", key=unique_key)
+        user_input = st.chat_input("Ask me a question about your data", key=unique_input_key)
         if user_input:
             st.session_state["my_question"] = user_input
     with col2:
-        if st.button("Clear and Start New Session"):
+        if st.button("Clear and Start New Session", key=unique_button_key):
             st.session_state.clear()
             st.experimental_rerun()
 
@@ -67,6 +68,7 @@ if assistant_message_suggested.button("Click to show suggested questions"):
                 question,
                 on_click=set_question,
                 args=(question,),
+                key=f"suggested_question_button_{i}"
             )
         # Ensure the input box is displayed after generating suggestions
         display_input_box()
@@ -163,8 +165,13 @@ if my_question:
                         "Here are some possible follow-up questions"
                     )
                     # Print the first 5 follow-up questions
-                    for question in followup_questions[:5]:
-                        assistant_message_followup.button(question, on_click=set_question, args=(question,))
+                    for i, question in enumerate(followup_questions[:5]):
+                        assistant_message_followup.button(
+                            question, 
+                            on_click=set_question, 
+                            args=(question,),
+                            key=f"followup_question_button_{i}"
+                        )
 
         # Ensure the input box is displayed after generating follow-up questions
         display_input_box()
