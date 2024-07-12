@@ -23,7 +23,7 @@ if api_key_input:
     st.session_state["api_key"] = api_key_input
     st.success("API Key saved successfully!")
 else:
-    st.warning("Please enter your Vanna API Key in the place holder at the sidebar to start off.")
+    st.warning("Please enter your Vanna API Key.")
 
 st.sidebar.title("Output Settings")
 st.sidebar.checkbox("Show SQL", value=True, key="show_sql")
@@ -56,15 +56,24 @@ if assistant_message_suggested.button("Click to show suggested questions"):
     else:
         st.error("No suggested questions available")
 
-my_question = st.session_state.get("my_question", default=None)
+if "my_question" not in st.session_state:
+    st.session_state["my_question"] = None
 
-if my_question is None:
-    my_question = st.chat_input(
-        "Ask me a question about your data",
-    )
+my_question = st.session_state["my_question"]
+
+col1, col2 = st.columns([4, 1])
+with col1:
+    if my_question is None:
+        my_question = st.chat_input("Ask me a question about your data")
+        if my_question:
+            st.session_state["my_question"] = my_question
+
+with col2:
+    if st.button("Clear and Start New Session"):
+        st.session_state.clear()
+        st.experimental_rerun()
 
 if my_question:
-    st.session_state["my_question"] = my_question
     user_message = st.chat_message("user")
     user_message.write(f"{my_question}")
 
@@ -157,3 +166,6 @@ if my_question:
             "assistant", avatar=avatar_url
         )
         assistant_message_error.error("I wasn't able to generate SQL for that question")
+
+    # Clear the input field for the next question
+    st.session_state["my_question"] = None
