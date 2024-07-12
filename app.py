@@ -1,5 +1,6 @@
 import time
 import streamlit as st
+import warnings
 from vanna_calls import (
     generate_questions_cached,
     generate_sql_cached,
@@ -11,6 +12,9 @@ from vanna_calls import (
     is_sql_valid_cached,
     generate_summary_cached
 )
+
+# Suppress specific warning
+warnings.filterwarnings("ignore", message="DuplicateWidgetID")
 
 avatar_url = "https://vanna.ai/img/vanna.svg"
 
