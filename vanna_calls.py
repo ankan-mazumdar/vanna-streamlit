@@ -6,13 +6,11 @@ logging.basicConfig(level=logging.DEBUG)
 
 @st.cache_resource(ttl=3600)
 def setup_vanna():
-    logging.debug("Retrieving API keys from secrets")
-    api_keys = st.secrets.get("api_keys")
-    logging.debug(f"API Keys: {api_keys}")
-    if api_keys is None:
-        raise ValueError("API keys not found in secrets.toml")
+    logging.debug("Retrieving API key from session state")
+    api_key = st.session_state.get("api_key")
+    if not api_key:
+        raise ValueError("API key not provided")
 
-    api_key = api_keys["vanna_key"]
     vn = VannaDefault(api_key=api_key, model='chinook')
     if vn is None:
         raise Exception("Failed to initialize VannaDefault")
