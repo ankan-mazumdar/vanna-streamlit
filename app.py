@@ -25,6 +25,9 @@ if api_key_input:
 else:
     st.warning("Please enter your Vanna API Key.")
 
+st.sidebar.title("Database Selection")
+database_choice = st.sidebar.selectbox("Select Database", ["Chinook", "BigQuery"])
+
 st.sidebar.title("Output Settings")
 st.sidebar.checkbox("Show SQL", value=True, key="show_sql")
 st.sidebar.checkbox("Show Table", value=True, key="show_table")
@@ -59,10 +62,10 @@ if st.session_state["my_question"]:
     user_message = st.chat_message("user")
     user_message.write(f"{my_question}")
 
-    sql = generate_sql_cached(question=my_question)
+    sql = generate_sql_cached(question=my_question, database_choice=database_choice)
 
     if sql:
-        if is_sql_valid_cached(sql=sql):
+        if is_sql_valid_cached(sql=sql, database_choice=database_choice):
             if st.session_state.get("show_sql", True):
                 assistant_message_sql = st.chat_message(
                     "assistant", avatar=avatar_url
@@ -75,7 +78,7 @@ if st.session_state["my_question"]:
             assistant_message.write(sql)
             st.stop()
 
-        df = run_sql_cached(sql=sql)
+        df = run_sql_cached(sql=sql, database_choice=database_choice)
 
         if df is not None:
             st.session_state["df"] = df
@@ -89,9 +92,9 @@ if st.session_state["my_question"]:
                 )
                 assistant_message_table.dataframe(df)  # Display all records
 
-            if should_generate_chart_cached(question=my_question, sql=sql, df=df):
+            if should_generate_chart_cached(question=my_question, sql=sql, df=df, database_choice=database_choice):
 
-                code = generate_plotly_code_cached(question=my_question, sql=sql, df=df)
+                code = generate_plotly_code_cached(question=my_question, sql=sql, df=df, database_choice=database_choice)
 
                 if st.session_state.get("show_plotly_code", False):
                     assistant_message_plotly_code = st.chat_message(
@@ -108,7 +111,7 @@ if st.session_state["my_question"]:
                             "assistant",
                             avatar=avatar_url,
                         )
-                        fig = generate_plot_cached(code=code, df=df)
+                        fig = generate_plot_cached(code=code, df=df, database_choice=database_choice)
                         if fig is not None:
                             assistant_message_chart.plotly_chart(fig)
                         else:
@@ -118,7 +121,7 @@ if st.session_state["my_question"]:
                 assistant_message_summary = st.chat_message(
                     "assistant", avatar=avatar_url
                 )
-                summary = generate_summary_cached(question=my_question, df=df)
+                summary = generate_summary_cached(question=my_question, df=df, database_choice=database_choice)
                 if summary is not None:
                     assistant_message_summary.text(summary)
 
@@ -127,7 +130,7 @@ if st.session_state["my_question"]:
                     "assistant", avatar=avatar_url
                 )
                 followup_questions = generate_followup_cached(
-                    question=my_question, sql=sql, df=df
+                    question=my_question, sql=sql, df=df, database_choice=database_choice
                 )
                 st.session_state["df"] = None
 
@@ -155,7 +158,7 @@ else:
     )
     if assistant_message_suggested.button("Click to show suggested questions"):
         st.session_state["my_question"] = None
-        questions = generate_questions_cached()
+        questions = generate_questions_cached(database_choice=database_choice)
         if questions:
             for i, question in enumerate(questions):
                 time.sleep(0.05)
