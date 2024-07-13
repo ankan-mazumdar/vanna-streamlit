@@ -1,5 +1,7 @@
 import streamlit as st
 from vanna.remote import VannaDefault, ChromaDB_VectorStore, Mistral
+from vanna.chromadb import ChromaDB_VectorStore
+from vanna.mistral import Mistral
 from google.cloud import bigquery
 import logging
 
