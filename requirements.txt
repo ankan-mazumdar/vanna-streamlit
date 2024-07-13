@@ -3,3 +3,4 @@ streamlit
 python-dotenv
 vanna[chromadb,mistralai,bigquery]
 google-cloud-bigquery
+onnxruntime
