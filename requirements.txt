@@ -1,3 +1,4 @@
 vanna
 streamlit
 python-dotenv
+onnxruntime
