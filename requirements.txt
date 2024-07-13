@@ -4,3 +4,4 @@ python-dotenv
 onnxruntime
 
 pysqlite3-binary
+openai
