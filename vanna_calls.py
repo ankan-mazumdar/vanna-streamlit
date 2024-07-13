@@ -4,14 +4,14 @@ from vanna.chromadb import ChromaDB_VectorStore
 from vanna.mistral import Mistral
 from google.cloud import bigquery
 import logging
-
+from chromadb.utils.embedding_functions import OpenAIEmbeddingFunction
 logging.basicConfig(level=logging.DEBUG)
 
 class MyVanna(ChromaDB_VectorStore, Mistral):
     def __init__(self, config=None):
         ChromaDB_VectorStore.__init__(self, config=config)
         Mistral.__init__(self, config={'api_key': 'OD24ZZunStRDKv2R5HjAVZTABjTJOhf7', 'model': 'mistral-tiny'})
-
+        self.embedding_function = OpenAIEmbeddingFunction(api_key='sk-proj-LdtZlQvy5FDloQTQVJ7hT3BlbkFJQUTt8Wr5I4ftUH7y9yes')
 @st.cache_resource(ttl=3600)
 def setup_vanna(database_choice):
     logging.debug("Retrieving API key from session state")
